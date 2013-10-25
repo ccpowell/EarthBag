@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{831D39A9-A3A5-4417-A025-224A2B0C40A1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>ConsoleApplication</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Geocaches</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="assets\img\placeholder.png" />
+    <Content Include="assets\javascripts\app.js" />
+    <Content Include="assets\javascripts\app\modules\geocache.js" />
+    <Content Include="assets\javascripts\app\modules\mainView.js" />
+    <Content Include="assets\javascripts\config.js" />
+    <Content Include="assets\javascripts\main.js" />
+    <Content Include="assets\javascripts\vendor\almond\almond.js" />
+    <Content Include="assets\javascripts\vendor\backbone\backbone.js" />
+    <Content Include="assets\javascripts\vendor\jquery-ui\jquery-ui.js" />
+    <Content Include="assets\javascripts\vendor\jquery\jquery.js" />
+    <Content Include="assets\javascripts\vendor\lodash\lodash.compat.js" />
+    <Content Include="assets\javascripts\vendor\requirejs\require.js" />
+    <Content Include="routes\index.js" />
+    <Content Include="server.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\javascripts\app\template\geocache.tmpl" />
+    <None Include="assets\stylesheets\style.less" />
+    <None Include="bower.json" />
+    <None Include="mimosa-config.coffee" />
+    <None Include="package.json" />
+    <None Include="views\index.ejs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>

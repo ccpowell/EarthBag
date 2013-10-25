@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geocaches</title>
+    
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/cupertino/jquery-ui.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="/stylesheets/style.css<%= cachebust %>" />
+
+    <% if (reload) { %>
+      <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/reload-client.js"></script>
+    <% } %>
+
+    <% if (optimize) { %>
+      <script src="/javascripts/main-built.js"></script>
+    <% } else { %>
+      <script src="/javascripts/vendor/requirejs/require.js" data-main="/javascripts/main.js"></script>
+    <% } %>
+
+</head>
+<body>
+    <% if (optimize) { %>
+    <p>Optimized mode.  You are getting a single RequireJS optimized JavaScript file which includes all the page dependencies.</p>
+    <% } %>
+    <div id="mainContainer">
+        <ul>
+            <li><a href="#home">Setup</a></li>
+            <li><a href="#cache">Custom Caches</a></li>
+            <li><a href="#ground">Update</a></li>
+        </ul>
+        <div id="home">
+            Home page - login dialog, setup info.
+        </div>
+        <div id="cache">
+            Custom caches
+            <!-- button - create new list -->
+            <!-- Combo of current caches -->
+            <!-- table of cache being edited -->
+            <!-- button - save list as -->
+            <!-- button - delete list -->
+        </div>
+        <div id="ground">
+            Download a new file from Groundspeak.
+        </div>
+    </div>
+</body>
+</html>
