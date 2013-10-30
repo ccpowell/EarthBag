@@ -49,6 +49,7 @@
     <Content Include="assets\javascripts\app\modules\geocache.js" />
     <Content Include="assets\javascripts\app\modules\mainView.js" />
     <Content Include="assets\javascripts\config.js" />
+    <Content Include="assets\javascripts\router.js" />
     <Content Include="assets\javascripts\main.js" />
     <Content Include="assets\javascripts\vendor\almond\almond.js" />
     <Content Include="assets\javascripts\vendor\backbone\backbone.js" />
