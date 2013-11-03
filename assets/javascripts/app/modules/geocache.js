@@ -1,5 +1,5 @@
 /* global define: false */
-define(['backbone', 'templates', 'jquery', 'jquery-ui'], function (Backbone, templates, $, ui) {
+define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbone, templates, $, ui, app) {
     var Geocache = Backbone.Model.extend({
         defaults: {
             title: '00001',
@@ -21,7 +21,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui'], function (Backbone, tem
 
     var GeocacheList = Backbone.Collection.extend({
         model: Geocache,
-        url: '/api/books'
+        url: '/api/geocaches/' + app.user
     });
 
     var GeocacheView = Backbone.View.extend({

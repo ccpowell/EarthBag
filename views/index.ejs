@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Geocaches</title>
-    
+
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/cupertino/jquery-ui.css" type="text/css" media="all" />
     <link rel="stylesheet" href="/stylesheets/style.css<%= cachebust %>" />
 
@@ -22,28 +22,48 @@
     <% if (optimize) { %>
     <p>Optimized mode.  You are getting a single RequireJS optimized JavaScript file which includes all the page dependencies.</p>
     <% } %>
-	<div id="loginPage" class="topPage">Login</div>
-	<div id="registerPage" class="topPage">Register</div>
-	<div id="changepwPage" class="topPage">Change Password</div>
+	<div id="loginPage" class="topPage">
+        <h3>Log In</h3>
+        <div>
+            <a href="#forgotpw">Forgot Password?</a>
+        </div>
+        <div>
+            <a href="#register">Register</a>
+        </div>
+        <div>
+            <button id="loginButton">Log In</button>
+        </div>
+    </div>
+    <div id="registerPage" class="topPage">Register</div>
+    <div id="landingPage" class="topPage">
+        <h3>Landing</h3>
+        <div>default page</div>
+    </div>
+    <div id="forgotpwPage" class="topPage">I Forgot My Password</div>
     <div id="mainPage" class="topPage">
-        <ul>
-            <li><a href="#home">Setup</a></li>
-            <li><a href="#cache">Custom Caches</a></li>
-            <li><a href="#ground">Update</a></li>
-        </ul>
-        <div id="home">
-            Home page - login dialog, setup info.
+        <div>
+            <a href="#logout">Log Out</a>
         </div>
-        <div id="cache">
-            Custom caches
+        <div id="mainPageTabs">
+            <ul>
+                <li><a href="#home">Setup</a></li>
+                <li><a href="#cache">Custom Caches</a></li>
+                <li><a href="#ground">Update</a></li>
+            </ul>
+            <div id="home">
+                Home page - login dialog, setup info.
+            </div>
+            <div id="cache">
+                Custom caches
             <!-- button - create new list -->
-            <!-- Combo of current caches -->
-            <!-- table of cache being edited -->
-            <!-- button - save list as -->
-            <!-- button - delete list -->
-        </div>
-        <div id="ground">
-            Download a new file from Groundspeak.
+                <!-- Combo of current caches -->
+                <!-- table of cache being edited -->
+                <!-- button - save list as -->
+                <!-- button - delete list -->
+            </div>
+            <div id="ground">
+                Download a new file from Groundspeak.
+            </div>
         </div>
     </div>
 </body>

@@ -1,39 +1,67 @@
 /* global define: false */
-define(["backbone", "jquery"], function (Backbone, $) {
-    var Router;
-    function setPage(id) {
-        $('.topPage').hide();
-        $('#' + id).show();
-    }
+define(["backbone",
+    "jquery",
+    "app",
+    "app/modules/forgotpwView",
+    "app/modules/loginView",
+    "app/modules/mainView",
+    "app/modules/registerView"], function (Backbone,
+        $,
+        app,
+        ForgotpwView,
+        LoginView,
+        MainView,
+        RegisterView) {
+        var Router,
+            mainView = new MainView(),
+            loginView = new LoginView(),
+            forgotpwView = new ForgotpwView(),
+            registerView = new RegisterView();
 
-    Router = Backbone.Router.extend({
-        routes: {
-            'login': 'login',
-            'register': 'register',
-            'changepw': 'changepw',
-            '*splat': 'main'
-        },
-
-        login: function () {
-            console.log('login');
-            setPage('loginPage');
-        },
-
-
-        register: function () {
-            setPage('registerPage');
-        },
-
-
-        changepw: function () {
-            setPage('changepwPage');
-        },
-
-
-        main: function () {
-            console.log('main');
-            setPage('mainPage');
+        function setPage(id) {
+            $('.topPage').hide();
+            $('#' + id).show();
         }
+
+        Router = Backbone.Router.extend({
+            routes: {
+                'login': 'login',
+                'register': 'register',
+                'forgotpw': 'forgotpw',
+                'main': 'main',
+                'logout': 'logout',
+                '*splat': 'landing'
+            },
+
+            login: function () {
+                setPage('loginPage');
+            },
+
+            register: function () {
+                setPage('registerPage');
+            },
+
+            forgotpw: function () {
+                setPage('forgotpwPage');
+            },
+
+            landing: function () {
+                setPage('landingPage');
+            },
+
+            logout: function() {
+                app.setUser(null);
+                setPage('loginPage');
+            },
+
+            main: function () {
+                if (!app.checkUser()) {
+                    setPage('loginPage');
+                    return;
+                }
+
+                setPage('mainPage');
+            }
+        });
+        return Router;
     });
-    return Router;
-});

@@ -46,6 +46,10 @@
     <Content Include=".gitignore" />
     <Content Include="assets\img\placeholder.png" />
     <Content Include="assets\javascripts\app.js" />
+    <Content Include="assets\javascripts\app\modules\forgotpwView.js" />
+    <Content Include="assets\javascripts\app\modules\registerView.js" />
+    <Content Include="assets\javascripts\app\modules\changepwView.js" />
+    <Content Include="assets\javascripts\app\modules\loginView.js" />
     <Content Include="assets\javascripts\app\modules\geocache.js" />
     <Content Include="assets\javascripts\app\modules\mainView.js" />
     <Content Include="assets\javascripts\config.js" />
@@ -54,6 +58,7 @@
     <Content Include="assets\javascripts\vendor\almond\almond.js" />
     <Content Include="assets\javascripts\vendor\backbone\backbone.js" />
     <Content Include="assets\javascripts\vendor\jquery-ui\jquery-ui.js" />
+    <Content Include="assets\javascripts\vendor\jquery.cookie\jquery.cookie.js" />
     <Content Include="assets\javascripts\vendor\jquery\jquery.js" />
     <Content Include="assets\javascripts\vendor\lodash\lodash.compat.js" />
     <Content Include="assets\javascripts\vendor\requirejs\require.js" />

@@ -11,7 +11,7 @@
 /node_modules
 
 # and bower
-javascripts/vendor
+assets/javascripts/vendor
 bower_components
 
 # Ignore all logfiles and tempfiles.

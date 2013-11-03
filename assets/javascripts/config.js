@@ -13,7 +13,8 @@ require.config({
         // Map remaining vendor dependencies.
         "jquery": "vendor/jquery/jquery",
         "jquery-ui": "vendor/jquery-ui/jquery-ui",
-        "backbone": "vendor/backbone/backbone"
+        "backbone": "vendor/backbone/backbone",
+        "cookie": "vendor/jquery.cookie/jquery.cookie"
     },
 
     shim: {
@@ -26,6 +27,7 @@ require.config({
             // This maps the global `Backbone` object to `require("backbone")`.
             exports: "Backbone"
         },
-      "jquery-ui": "jquery"
+        "jquery-ui": "jquery",
+        "cookie": "jquery"
     }
 });
