@@ -4,17 +4,19 @@
 var mongo = require('mongodb'),
     Q = require('q'),
     host = 'localhost',
-    port = mongo.Connection.DEFAULT_PORT,
-    server = new mongo.Server(host, port, {}),
-    cdb = new mongo.Db('gmjr', server, { journal: true });
+    port = mongo.Connection.DEFAULT_PORT;
 
-function throwit(message) {
-    throw message;
+function newClient() {
+    return mongoclient = new mongo.MongoClient(new mongo.Server(host, port, {native_parser: true}));
 }
 
 // get all users
 exports.getUsers = function () {
-    return Q.ninvoke(cdb, 'open')
+    var mongoclient = newClient();
+    return Q.ninvoke(mongoclient, 'open')
+        .then(function(client) {
+            return Q.ninvoke(client.db('gmjr'), 'open');
+        })
         .then(function (db) {
             return Q.ninvoke(db, 'collection', 'users');
         })
@@ -23,13 +25,17 @@ exports.getUsers = function () {
             return Q.ninvoke(cursor, 'toArray');
         })
         .fin(function () {
-            cdb.close();
+            mongoclient.close();
         });
 };
 
 // get a single user by id
 exports.getUserById = function (id) {
-    return Q.ninvoke(cdb, 'open')
+    var mongoclient = newClient();
+    return Q.ninvoke(mongoclient, 'open')
+        .then(function(client) {
+            return Q.ninvoke(client.db('gmjr'), 'open');
+        })
         .then(function (db) {
             return Q.ninvoke(db, 'collection', 'users');
         })
@@ -37,8 +43,7 @@ exports.getUserById = function (id) {
             return Q.ninvoke(collection, 'findOne', { _id: id });
         })
         .fin(function () {
-            console.log("closing db");
-            cdb.close();
+            mongoclient.close();
         });
 };
 
@@ -50,7 +55,11 @@ exports.createUser = function (user) {
     if (!user['password']) {
         return Q.fcall(function () { throw 'Password is required'; });
     };
-    return Q.ninvoke(cdb, 'open')
+    var mongoclient = newClient();
+    return Q.ninvoke(mongoclient, 'open')
+        .then(function(client) {
+            return Q.ninvoke(client.db('gmjr'), 'open');
+        })
         .then(function (db) {
             return Q.ninvoke(db, 'collection', 'users');
         })
@@ -64,13 +73,16 @@ exports.createUser = function (user) {
                 });
         })
         .fin(function () {
-            cdb.close();
+            mongoclient.close();
         });
 };
 
 // get a single list by id
-exports.getGeocacheListById = function (id) {
-    return Q.ninvoke(cdb, 'open')
+exports.getGeocacheListById = function (id) { var mongoclient = newClient();
+    return Q.ninvoke(mongoclient, 'open')
+        .then(function(client) {
+            return Q.ninvoke(client.db('gmjr'), 'open');
+        })
         .then(function (db) {
             return Q.ninvoke(db, 'collection', 'geocachelists');
         })
@@ -78,13 +90,17 @@ exports.getGeocacheListById = function (id) {
             return Q.ninvoke(collection, 'findOne', { _id: id });
         })
         .fin(function () {
-            cdb.close();
+            mongoclient.close();
         });
 };
 
 // get a single user by name (i.e. email)
 exports.getUserByName = function (name) {
-    return Q.ninvoke(cdb, 'open')
+    var mongoclient = newClient();
+    return Q.ninvoke(mongoclient, 'open')
+        .then(function(client) {
+            return Q.ninvoke(client.db('gmjr'), 'open');
+        })
         .then(function (db) {
             return Q.ninvoke(db, 'collection', 'users');
         })
@@ -92,6 +108,6 @@ exports.getUserByName = function (name) {
             return Q.ninvoke(collection, 'findOne', { name: name });
         })
         .fin(function () {
-            cdb.close();
+            mongoclient.close();
         });
 };

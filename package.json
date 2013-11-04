@@ -1,12 +1,12 @@
 {
-  "name": "BackboneMongo",
+  "name": "EarthBag",
   "version": "0.0.1",
   "homepage": "",
-  "author": "",
+  "author": "Christopher C. Powell",
   "description": "",
   "contributors": [
     {
-      "name": "",
+      "name": "Christopher C. Powell",
       "email": ""
     }
   ],
