@@ -19,11 +19,35 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
     });
 
-    var GeocacheList = Backbone.Collection.extend({
-        model: Geocache,
-        url: '/api/geocaches/' + app.user
+    var GeocacheCollection = Backbone.Collection.extend({
+        model: Geocache
     });
 
+    var GeocacheList = Backbone.Model.extend({
+        defaults: {
+            name: '',
+            id: '',
+            userId: '',
+            geocaches: []
+        },
+        urlRoot: '/api/geocachelist'
+    });
+
+
+    var GeocacheListCollection = Backbone.Collection.extend({
+        model: GeocacheList
+    });
+
+    var GeocacheListList = Backbone.Model.extend({
+        defaults: {
+            _id: '',
+            geocacheLists: []
+        },
+        idAttribute: '_id',
+        urlRoot: '/api/usergeocachelists'
+    });
+
+    // make a row in a table to represent a geocache in a list
     var GeocacheView = Backbone.View.extend({
         tagName: 'tr',
         className: 'geocache',
@@ -41,9 +65,32 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
     });
 
+    var GeocacheListsView = Backbone.View.extend({
+        el: '#listSelect',
+
+        initialize: function (user) {
+            console.log("create GeocacheListsView for " + user.name);
+            this.model = new GeocacheListList({ _id: user._id });
+            this.listenTo(this.model, 'change', this.render);
+            this.model.fetch();
+        },
+
+        // render library by rendering each geocache list to an option
+        render: function () {
+            var tmpl = templates.geocacheListOption,
+                self = this;
+            console.log("render GeocacheListsView");
+            self.$el.html(tmpl({_id: '', name: 'Open an Existing List'}));
+            $.each(this.model.attributes.geocacheLists, function (index, item) {
+                self.$el.append(tmpl(item));
+            });
+            return self;
+        }
+    });
+
+    // make a table to show geocaches in a GeocacheList
     var GeocacheListView = Backbone.View.extend({
-        tagName: 'table',
-        className: 'geocacheList',
+        el: '#geocaches',
         initialize: function () {
             this.collection = new GeocacheList();
             this.listenTo(this.collection, 'reset', this.render);
@@ -57,15 +104,15 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             }, this);
         },
 
-        // render a book by creating a BookView and appending the
-        // element it renders to the library's element
+        // render a list by creating a GeocacheView and appending the
+        // element it renders to the list's table body element
         renderGeocache: function (item) {
             var geocacheView = new GeocacheView({
                 model: item
             });
-            this.$('body').append(geocacheView.render().el);
+            this.$('tbody').append(geocacheView.render().el);
         }
     });
 
-    return { GeocacheListView: GeocacheListView };
+    return { GeocacheListView: GeocacheListView, GeocacheListsView: GeocacheListsView };
 });

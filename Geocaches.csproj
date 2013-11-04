@@ -62,11 +62,13 @@
     <Content Include="assets\javascripts\vendor\jquery\jquery.js" />
     <Content Include="assets\javascripts\vendor\lodash\lodash.compat.js" />
     <Content Include="assets\javascripts\vendor\requirejs\require.js" />
+    <Content Include="modules\repository.js" />
     <Content Include="routes\index.js" />
     <Content Include="server.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\javascripts\app\template\geocache.tmpl" />
+    <None Include="assets\javascripts\app\template\geocacheListOption.tmpl" />
     <None Include="assets\stylesheets\style.less" />
     <None Include="bower.json" />
     <None Include="mimosa-config.coffee" />

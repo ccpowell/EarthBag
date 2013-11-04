@@ -16,6 +16,7 @@
     "consolidate": "0.9.1",
     "ejs": "0.8.4",
     "path": "~0.4.9",
-    "mongoose": "~3.5.5"
+	"mongodb":"*",
+	"q":"*"
   }
 }

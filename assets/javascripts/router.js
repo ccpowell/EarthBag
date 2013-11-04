@@ -57,9 +57,10 @@ define(["backbone",
             main: function () {
                 if (!app.checkUser()) {
                     setPage('loginPage');
+                    this.navigate('#login');
                     return;
                 }
-
+                mainView.setUser(app.user);
                 setPage('mainPage');
             }
         });
