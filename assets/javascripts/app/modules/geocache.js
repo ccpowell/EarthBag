@@ -44,7 +44,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             geocacheLists: []
         },
         idAttribute: '_id',
-        urlRoot: '/api/usergeocachelists'
+        url: function() { return '/api/usergeocachelists'; }
     });
 
     // make a row in a table to represent a geocache in a list
@@ -68,14 +68,16 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
     var GeocacheListsView = Backbone.View.extend({
         el: '#listSelect',
 
-        initialize: function (user) {
-            console.log("create GeocacheListsView for " + user.name);
-            this.model = new GeocacheListList({ _id: user._id });
+        initialize: function () {
+            this.model = new GeocacheListList();
             this.listenTo(this.model, 'change', this.render);
             this.model.fetch();
         },
 
-        refresh: function () {
+        selectedName: null,
+
+        refresh: function (name) {
+            this.selectedName = name;
             this.model.fetch();
         },
 
@@ -84,10 +86,18 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             var tmpl = templates.geocacheListOption,
                 self = this;
             console.log("render GeocacheListsView");
-            self.$el.html(tmpl({name: 'Open an Existing List'}));
+            if (this.selectedName) {
+                self.$el.empty();
+            } else {
+                self.$el.html(tmpl({name: 'Open an Existing List'}));
+            }
             $.each(this.model.attributes.geocacheLists, function (index, item) {
                 self.$el.append(tmpl(item));
             });
+            if (this.selectedName) {
+                this.$('option[value="' + this.selectedName + '"]').prop('selected', true);
+            }
+
             return self;
         }
     });

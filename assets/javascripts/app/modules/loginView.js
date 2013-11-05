@@ -16,17 +16,17 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
                 name: this.$('#loginUser').val(),
                 password: this.$('#loginPassword').val()
             }, self = this;
+            app.clearUser();
             self.$('.error').empty();
             app.postJson('/api/user/validate', data)
                 .then(function (result) {
-                    app.setUser(result.user);
                     if (result.error) {
                         self.$('.error').text(result.error);
                     } else {
                         app.router.navigate('#main', { trigger: true });
                     }
                 });
-        },
+        }
     });
 
     return LoginView;

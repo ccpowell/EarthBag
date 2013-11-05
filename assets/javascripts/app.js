@@ -7,30 +7,14 @@ define(['jquery', 'cookie', 'backbone'], function ($, cookie, Backbone) {
     app.root = "/";
 
     app.checkUser = function () {
-        var coo;
-        if (!app.user) {
-            coo = {
-                name: $.cookie('user-name'),
-                _id: $.cookie('user-id')
-            };
-            if (coo._id) {
-                app.user = coo;
-            }
-        }
-        return !!app.user;
+        var coo = $.cookie('user');
+        return !!coo;
     };
 
-    app.setUser = function (user) {
-        if (user) {
-            // save user name in cookie
-            $.cookie('user-name', user.name);
-            $.cookie('user-id', user._id);
-            app.user = user;
-        } else {
-            $.removeCookie('user-name');
-            $.removeCookie('user-id');
-            app.user = null;
-        }
+    app.clearUser = function() {
+        $.removeCookie('user-name');
+        $.removeCookie('user-id');
+        $.removeCookie('user');
     };
 
     app.postJson = function (url, data, options) {

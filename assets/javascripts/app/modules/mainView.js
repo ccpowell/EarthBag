@@ -15,9 +15,13 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
             'click #createListButton': 'onCreateList'
         },
 
+        displayList: function(name) {
+            this.$('#selectedList').text(name);
+        },
+
         onListSelected: function (event) {
-            var lname = this.$('#listSelect option:selected').text();
-            this.$('#selectedList').text(lname);
+            var name = this.$('#listSelect option:selected').text();
+            this.displayList(name);
         },
 
         onCreateList: function (event) {
@@ -27,22 +31,23 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
         doCreateList: function () {
             var self = this,
                 name = $('#newListName', this.$els.newListDialog).val(),
-                request = { userId: this.data.user._id, name: name };
-            console.log("create list " + name);
+                request = { name: name };
 
             // post to create list for this user
             app.postJson('/api/creategeocachelist', request)
                 .done(function(result) {
                     if (result.error){
-                        alert(result.error);
+                        alert("failed " + result.error);
+                        return;
                     }
                     // when created, refresh list of lists,
                     // then select newly created list
-                    self.data.geocacheListsView.refresh();
+                    self.data.geocacheListsView.refresh(name);
+                    self.displayList(name);
                     self.$els.newListDialog.dialog('close');
                 })
                 .fail(function(x) {
-                    alert("failed");
+                    alert("failed " + x.toString());
                 });
         },
 
@@ -69,13 +74,10 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 width: 350,
                 modal: true
             });
-        },
 
-        setUser: function (user) {
             this.data = {
-                user: user,
                 geocacheListView: null,
-                geocacheListsView: new geocache.GeocacheListsView(user)
+                geocacheListsView: new geocache.GeocacheListsView()
             };
         },
 

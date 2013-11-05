@@ -50,7 +50,7 @@ define(["backbone",
             },
 
             logout: function() {
-                app.setUser(null);
+                app.clearUser();
                 setPage('loginPage');
             },
 
@@ -60,7 +60,6 @@ define(["backbone",
                     this.navigate('#login');
                     return;
                 }
-                mainView.setUser(app.user);
                 setPage('mainPage');
             }
         });

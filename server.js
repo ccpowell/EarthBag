@@ -1,7 +1,8 @@
 var express = require('express'),
     routes = require('./routes'),
     engines = require('consolidate'),
-    repository = require('./modules/repository');
+    repository = require('./modules/repository'),
+    _ = require('underscore');
 
 exports.startServer = function (config, callback) {
     var port = process.env.PORT || config.server.port;
@@ -17,6 +18,7 @@ exports.startServer = function (config, callback) {
         app.set('view engine', config.server.views.extension);
         app.use(express.favicon());
         app.use(express.bodyParser());
+        app.use(express.cookieParser());
         app.use(express.methodOverride());
         app.use(express.compress());
         app.use(config.server.base, app.router);
@@ -40,12 +42,12 @@ exports.startServer = function (config, callback) {
                     user: created,
                     error: null
                 };
+                response.cookie('user', {_id: created._id, name: created.name}, {maxAge: 3600000});
                 return response.send(data);
             })
             .fail(function (bummer) {
                 var data = {
-                    user: null,
-                    error: bummer
+                    error: bummer.toString()
                 };
                 return response.send(data);
             });
@@ -64,13 +66,13 @@ exports.startServer = function (config, callback) {
                     data.error = "Password incorrect.";
                 } else {
                     data.user = found;
+                    response.cookie('user', {_id: found._id, name: found.name}, {maxAge: 3600000});
                 }
                 return response.send(data);
             })
             .fail(function (bummer) {
                 var data = {
-                    user: null,
-                    error: bummer
+                    error: bummer.toString()
                 };
                 return response.send(data);
             });
@@ -85,7 +87,12 @@ exports.startServer = function (config, callback) {
     });
 
     app.post('/api/creategeocachelist', function (request, response) {
-        repository.createList(request.body.userId, request.body.name)
+        var user = request.cookies.user,
+            userId = user ? user._id : null;
+        if (!userId) {
+            return response.send(403, 'not logged in');
+        }
+        repository.createList(userId, request.body.name)
             .then(function() {
                 var data = {
                     error: null
@@ -94,21 +101,40 @@ exports.startServer = function (config, callback) {
             })
             .fail(function (bummer) {
                 var data = {
-                    error: bummer
+                    error: bummer.toString()
                 };
                 return response.send(data);
             });
     });
 
-    app.get('/api/usergeocachelists/:id', function (request, response) {
-        var data = {
-            geocacheLists: [
-                { _id: '1f', name: 'alpha' }
-            ],
-            error: null
-        };
-        console.log('get usergeocachelists for ' + request.params.id);
-        return response.send(data);
+    app.get('/api/usergeocachelists', function (request, response) {
+        var user = request.cookies.user,
+            userId = user ? user._id : null;
+        if (!userId) {
+            return response.send(403, 'not logged in');
+        }
+        // just return names of geocacheLists
+        repository.getUserById(userId)
+            .then(function(user) {
+                var data = {
+                    geocacheLists: [],
+                    error: null
+                };
+                if (user.geocacheLists && user.geocacheLists.length > 0) {
+                    data.geocacheLists = _.chain(user.geocacheLists)
+                        .pluck('name')
+                        .sort()
+                        .map(function(item) {return {name: item};})
+                        .value();
+                }
+                return response.send(data);
+            })
+            .fail(function (bummer) {
+                var data = {
+                    error: bummer.toString()
+                };
+                return response.send(data);
+            });
     });
 
 
