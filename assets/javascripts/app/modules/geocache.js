@@ -52,7 +52,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         tagName: 'tr',
         className: 'geocache',
         template: templates.geocache,
-        
+
         render: function () {
             //this.el is what we defined in tagName. use $el to get access to jQuery html() function
             var stuff = this.model.toJSON(),
@@ -75,12 +75,16 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             this.model.fetch();
         },
 
-        // render library by rendering each geocache list to an option
+        refresh: function () {
+            this.model.fetch();
+        },
+
+        // render list by rendering each geocache list to an option
         render: function () {
             var tmpl = templates.geocacheListOption,
                 self = this;
             console.log("render GeocacheListsView");
-            self.$el.html(tmpl({_id: '', name: 'Open an Existing List'}));
+            self.$el.html(tmpl({name: 'Open an Existing List'}));
             $.each(this.model.attributes.geocacheLists, function (index, item) {
                 self.$el.append(tmpl(item));
             });
@@ -91,12 +95,18 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
     // make a table to show geocaches in a GeocacheList
     var GeocacheListView = Backbone.View.extend({
         el: '#geocaches',
+
         initialize: function () {
             this.collection = new GeocacheList();
             this.listenTo(this.collection, 'reset', this.render);
             this.collection.fetch({ reset: true });
         },
-        
+
+        refresh: function () {
+            this.collection.fetch({ reset: true });
+        },
+
+
         // render library by rendering each book in its collection
         render: function () {
             this.collection.each(function (item) {

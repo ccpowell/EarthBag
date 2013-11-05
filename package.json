@@ -1,22 +1,23 @@
 {
-  "name": "EarthBag",
-  "version": "0.0.1",
-  "homepage": "",
-  "author": "Christopher C. Powell",
-  "description": "",
-  "contributors": [
-    {
-      "name": "Christopher C. Powell",
-      "email": ""
+    "name": "EarthBag",
+    "version": "0.0.1",
+    "homepage": "",
+    "author": "Christopher C. Powell",
+    "description": "",
+    "contributors": [
+        {
+            "name": "Christopher C. Powell",
+            "email": ""
+        }
+    ],
+    "private": true,
+    "dependencies": {
+        "express": "3.3.4",
+        "consolidate": "0.9.1",
+        "ejs": "0.8.4",
+        "path": "~0.4.9",
+        "mongodb": "*",
+        "q": "*",
+        "underscore": "*"
     }
-  ],
-  "private": true,
-  "dependencies": {
-    "express": "3.3.4",
-    "consolidate": "0.9.1",
-    "ejs": "0.8.4",
-    "path": "~0.4.9",
-	"mongodb":"*",
-	"q":"*"
-  }
 }

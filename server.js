@@ -84,6 +84,22 @@ exports.startServer = function (config, callback) {
         return response.send('ok');
     });
 
+    app.post('/api/creategeocachelist', function (request, response) {
+        repository.createList(request.body.userId, request.body.name)
+            .then(function() {
+                var data = {
+                    error: null
+                };
+                return response.send(data);
+            })
+            .fail(function (bummer) {
+                var data = {
+                    error: bummer
+                };
+                return response.send(data);
+            });
+    });
+
     app.get('/api/usergeocachelists/:id', function (request, response) {
         var data = {
             geocacheLists: [

@@ -1,10 +1,13 @@
 /* global define: false */
-define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache'], function (Backbone, templates, $, ui, geocache) {
+define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 'app'],
+    function (Backbone, templates, $, ui, geocache, app) {
     var MainView = Backbone.View.extend({
         el: '#mainPage',
 
+        // contains user and views
         data: null,
 
+        // contains jquery elements for dialogs
         $els: null,
 
         events: {
@@ -22,13 +25,28 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache'],
         },
 
         doCreateList: function () {
-            var name = $('#newListName', this.$els.newListDialog).val();
+            var self = this,
+                name = $('#newListName', this.$els.newListDialog).val(),
+                request = { userId: this.data.user._id, name: name };
             console.log("create list " + name);
-            this.$els.newListDialog.dialog('close');
+
+            // post to create list for this user
+            app.postJson('/api/creategeocachelist', request)
+                .done(function(result) {
+                    if (result.error){
+                        alert(result.error);
+                    }
+                    // when created, refresh list of lists,
+                    // then select newly created list
+                    self.data.geocacheListsView.refresh();
+                    self.$els.newListDialog.dialog('close');
+                })
+                .fail(function(x) {
+                    alert("failed");
+                });
         },
 
         initialize: function () {
-            var self = this;
             this.$('#mainPageTabs').tabs();
             this.$('button').button();
 
