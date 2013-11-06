@@ -5,22 +5,29 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
         el: '#mainPage',
 
         // contains user and views
-        data: null,
+        data: {},
 
         // contains jquery elements for dialogs
         $els: null,
 
         events: {
-            'change #listSelect': 'onListSelected',
             'click #createListButton': 'onCreateList'
         },
 
         displayList: function(name) {
             this.$('#selectedList').text(name);
+            this.data.geocacheListView.setName(name);
         },
 
-        onListSelected: function (event) {
-            var name = this.$('#listSelect option:selected').text();
+        onListChanged: function (event) {
+            var name = this.data.created;
+            if (name) {
+                this.data.created = null;
+                this.data.geocacheListsView.selectList(name);
+            }
+        },
+
+        onListSelected: function (name) {
             this.displayList(name);
         },
 
@@ -42,8 +49,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                     }
                     // when created, refresh list of lists,
                     // then select newly created list
-                    self.data.geocacheListsView.refresh(name);
-                    self.displayList(name);
+                    self.data.created = name;
+                    self.data.geocacheListsView.refresh();
                     self.$els.newListDialog.dialog('close');
                 })
                 .fail(function(x) {
@@ -76,9 +83,11 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
             });
 
             this.data = {
-                geocacheListView: null,
+                geocacheListView: new geocache.GeocacheListView(),
                 geocacheListsView: new geocache.GeocacheListsView()
             };
+            this.listenTo(this.data.geocacheListsView, 'listSelected', this.onListSelected);
+            this.listenTo(this.data.geocacheListsView, 'change', this.onListChanged);
         },
 
         render: function () {

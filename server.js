@@ -137,6 +137,40 @@ exports.startServer = function (config, callback) {
             });
     });
 
+    app.get('/api/geocachelist/:name', function (request, response) {
+        var user = request.cookies.user,
+            userId = user ? user._id : null,
+            name = request.params.name;
+        if (!userId) {
+            return response.send(403, 'not logged in');
+        }
+        // just return names of geocacheLists
+        repository.getUserById(userId)
+            .then(function(user) {
+                var data = {
+                    name: name,
+                    geocaches: [],
+                    error: null
+                },
+                    list = null;
+                if (user.geocacheLists && user.geocacheLists.length > 0) {
+                    list = _.find(user.geocacheLists, function(gcl){return gcl.name === name;});
+                }
+                if (list) {
+                    data.geocaches = list.geocaches;
+                } else {
+                    data.error = 'No such list';
+                }
+                return response.send(data);
+            })
+            .fail(function (bummer) {
+                var data = {
+                    error: bummer.toString()
+                };
+                return response.send(data);
+            });
+    });
+
 
     // okay, fire it up
     callback(server);
