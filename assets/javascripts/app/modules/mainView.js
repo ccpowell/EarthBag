@@ -41,6 +41,17 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                     gc = geocache.getEmptyGeocache();
                     geocache.setDialogGeocache(this.$els.editGeocacheDialog, gc);
                     this.$els.editGeocacheDialog.dialog('open');
+                    this.data.editGeocacheIndex = null;
+                }
+            },
+
+            onEditGeocache: function (index) {
+                var gc;
+                if (this.data.geocacheListName) {
+                    gc = this.data.geocacheListView.model.get('geocaches')[index];
+                    geocache.setDialogGeocache(this.$els.editGeocacheDialog, gc);
+                    this.$els.editGeocacheDialog.dialog('open');
+                    this.data.editGeocacheIndex = index;
                 }
             },
 
@@ -66,17 +77,31 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 }
             },
 
-            doAddGeocache: function () {
+            doEditGeocache: function () {
                 // get data from form
                 var self = this,
                     gc = geocache.getDialogGeocache(this.$els.editGeocacheDialog),
-                    url = '/api/geocachelist/' + encodeURIComponent(this.data.geocacheListName),
-                    geocaches = this.data.geocacheListView.model.get('geocaches').slice();
-                geocaches.push(gc);
+                    geocaches = this.data.geocacheListView.model.get('geocaches').slice(),
+                    index = this.data.editGeocacheIndex;
+                // add or replace geocache
+                if (index !== null) {
+                    geocaches.splice(this.data.editGeocacheIndex, 1, gc);
+                } else {
+                    geocaches.push(gc);
+                }
                 // TODO: we need to clone (or slice) array to get change event.
                 // TODO: add version number to geocacheList.
                 this.data.geocacheListView.model.save({geocaches: geocaches});
                 self.$els.editGeocacheDialog.dialog('close');
+            },
+
+            onDeleteGeocache: function (index) {
+                var self = this,
+                    geocaches = this.data.geocacheListView.model.get('geocaches').slice();
+                geocaches.splice(index, 1);
+                // TODO: we need to clone (or slice) array to get change event.
+                // TODO: add version number to geocacheList.
+                this.data.geocacheListView.model.save({geocaches: geocaches});
             },
 
             doCreateList: function () {
@@ -126,7 +151,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                     width: 500,
                     modal: true,
                     buttons: {
-                        "Add Geocache": $.proxy(this.doAddGeocache, this),
+                        "Save": $.proxy(this.doEditGeocache, this),
                         "Cancel": function () {
                             $(this).dialog('close');
                         }
@@ -152,6 +177,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 };
                 this.listenTo(this.data.geocacheListsView, 'listSelected', this.onListSelected);
                 this.listenTo(this.data.geocacheListsView, 'change', this.onListChanged);
+                this.listenTo(this.data.geocacheListView, 'editGeocache', this.onEditGeocache);
+                this.listenTo(this.data.geocacheListView, 'deleteGeocache', this.onDeleteGeocache);
             },
 
             refresh: function () {

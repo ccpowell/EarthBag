@@ -71,11 +71,11 @@ exports.startServer = function (config, callback) {
     });
 
     app.post('/api/user/changepw', function (request, response) {
-        return response.send('ok');
+        return response.send(501);
     });
 
     app.post('/api/user/forgotpw', function (request, response) {
-        return response.send('ok');
+        return response.send(501);
     });
 
     app.post('/api/creategeocachelist', function (request, response) {

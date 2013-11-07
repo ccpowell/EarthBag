@@ -1,5 +1,6 @@
 /* global define: false */
 define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbone, templates, $, ui, app) {
+    // only used in getEmptyGeocache
     var Geocache = Backbone.Model.extend({
         defaults: {
             title: '00001',
@@ -37,7 +38,6 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
     });
 
-
     function padNum(num, len, fix) {
         var fixed = num.toFixed(fix);
         while (fixed.length < len) {
@@ -46,8 +46,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         return fixed;
     }
 
-    function formatDirection(dir){
-        return dir.direction.toUpperCase() +
+    function formatDirection(dir) {
+        return dir.direction +
             ' ' +
             padNum(dir.degrees, 2, 0) +
             '&deg; ' +
@@ -108,6 +108,20 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             this.listenTo(this.model, 'change', this.render);
         },
 
+        events: {
+            'click td.command': 'onCommandClicked'
+        },
+
+        onCommandClicked: function (event, x, y) {
+            // get row index
+            var el = $(event.currentTarget),
+                command=el.data('command'),
+                index = el.closest('tr').data('index');
+            // get corresponding geocache?
+            // raise event
+            this.trigger(command, index);
+        },
+
         refresh: function () {
             this.model.fetch({success: $.proxy(this.render, this)});
         },
@@ -129,22 +143,23 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             this.$el.empty();
             if (this.model.attributes.geocaches) {
                 $.each(this.model.attributes.geocaches, function (index, item) {
-                    self.renderGeocache(item);
+                    self.renderGeocache(index, item);
                 });
             }
         },
 
         // render a list by creating a GeocacheView and appending the
         // element it renders to the list's table body element
-        renderGeocache: function (item) {
+        renderGeocache: function (index, item) {
             var stuff = {
-                title: item.title,
-                size: item.size,
-                terrain: item.terrain,
-                difficulty: item.difficulty
-            },
+                    index: index,
+                    title: item.title,
+                    size: item.size,
+                    terrain: item.terrain,
+                    difficulty: item.difficulty
+                },
                 template = templates.geocache;
-            // TODO: convert lat, lon, size, terrain, difficulty
+            // TODO: convert size, terrain, difficulty
             stuff.latitude = formatDirection(item.latitude);
             stuff.longitude = formatDirection((item.longitude));
 
@@ -153,22 +168,22 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
     });
 
     // get geocache properties from dialog
-    function getDialogGeocache($el){
+    function getDialogGeocache($el) {
         var geocache = {
             title: $('#geocacheTitle', $el).val(),
             latitude: {
                 direction: $('#geocacheLatitudeDirection', $el).val(),
                 minutes: parseFloat($('#geocacheLatitudeMinutes', $el).val()),
-                degrees: parseInt($('#geocacheLatitudeDegrees', $el).val())
+                degrees: parseInt($('#geocacheLatitudeDegrees', $el).val(), 10)
             },
             longitude: {
                 direction: $('#geocacheLongitudeDirection', $el).val(),
                 minutes: parseFloat($('#geocacheLongitudeMinutes', $el).val()),
-                degrees: parseInt($('#geocacheLongitudeDegrees', $el).val())
+                degrees: parseInt($('#geocacheLongitudeDegrees', $el).val(), 10)
             },
-            size: parseInt($('#geocacheSize', $el).val()),
-            terrain: parseInt($('#geocacheTerrain', $el).val()),
-            difficulty: parseInt($('#geocacheDifficulty', $el).val())
+            size: parseInt($('#geocacheSize', $el).val(), 10),
+            terrain: parseInt($('#geocacheTerrain', $el).val(), 10),
+            difficulty: parseInt($('#geocacheDifficulty', $el).val(), 10)
         };
         return geocache;
     }
