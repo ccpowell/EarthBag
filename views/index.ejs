@@ -110,6 +110,7 @@
             </div>
             <table id="geocacheListTable">
                 <thead class="ui-widget-header">
+                <tr>
                 <th>Select</th>
                 <th>ID</th>
                 <th>Latitude</th>
@@ -117,6 +118,7 @@
                 <th>Size</th>
                 <th>Terrain</th>
                 <th>Difficulty</th>
+                </tr>
                 </thead>
                 <tbody class="ui-widget-content"></tbody>
             </table>
@@ -157,6 +159,43 @@
             </select>
             <input type="text" id="geocacheLongitudeDegrees" class="degrees"/>&deg;
             <input type="text" id="geocacheLongitudeMinutes" class="minutes"/>&prime;
+        </div>
+        <div>
+            <label for="geocacheSize">Size:</label>
+            <select id="geocacheSize">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+        <div>
+            <label for="geocacheTerrain">Terrain:</label>
+            <select id="geocacheTerrain">
+                <option value="1">1</option>
+                <option value="1.5">1.5</option>
+                <option value="2">2</option>
+                <option value="2.5">2.5</option>
+                <option value="3">3</option>
+                <option value="3.5">3.5</option>
+                <option value="4">4</option>
+                <option value="4.5">4.5</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div>
+            <label for="geocacheDifficulty">Difficulty:</label>
+            <select id="geocacheDifficulty">
+                <option value="1">1</option>
+                <option value="1.5">1.5</option>
+                <option value="2">2</option>
+                <option value="2.5">2.5</option>
+                <option value="3">3</option>
+                <option value="3.5">3.5</option>
+                <option value="4">4</option>
+                <option value="4.5">4.5</option>
+                <option value="5">5</option>
+            </select>
         </div>
     </div>
 </div>

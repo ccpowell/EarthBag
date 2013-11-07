@@ -39,17 +39,13 @@ exports.startServer = function (config, callback) {
         repository.createUser(user)
             .then(function (created) {
                 var data = {
-                    user: created,
-                    error: null
+                    user: created
                 };
                 response.cookie('user', {_id: created._id, name: created.name}, {maxAge: 3600000});
-                return response.send(data);
+                response.send(data);
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                response.send(400, bummer.toString());
             });
     });
 
@@ -57,24 +53,20 @@ exports.startServer = function (config, callback) {
         repository.getUserByName(request.body.name)
             .then(function (found) {
                 var data = {
-                    user: null,
-                    error: null
+                    user: null
                 };
                 if (!found) {
-                    data.error = "User name not found. Please register to create an account.";
+                    return response.send(400, "User name not found. Please register to create an account.");
                 } else if (found.password !== request.body.password) {
-                    data.error = "Password incorrect.";
+                    return response.send(400, "Password incorrect.");
                 } else {
                     data.user = { name: found.name, _id: found._id };
                     response.cookie('user', data.user, {maxAge: 3600000});
-                }
-                return response.send(data);
+                    return response.send(200, data);
+            }
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                return response.send(500, bummer.toString());
             });
     });
 
@@ -90,35 +82,35 @@ exports.startServer = function (config, callback) {
         var user = request.cookies.user,
             userId = user ? user._id : null;
         if (!userId) {
-            return response.send(403, 'not logged in');
+            response.send(401, 'not logged in');
+            return;
         }
         repository.createList(userId, request.body.name)
             .then(function () {
                 var data = {
                     error: null
                 };
-                return response.send(data);
+                response.send(200, data);
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                response.send(400, bummer.toString());
             });
     });
+
+
 
     app.get('/api/usergeocachelists', function (request, response) {
         var user = request.cookies.user,
             userId = user ? user._id : null;
         if (!userId) {
-            return response.send(403, 'not logged in');
+            response.send(401, 'not logged in');
+            return;
         }
         // just return names of geocacheLists
         repository.getUserById(userId)
             .then(function (user) {
                 var data = {
-                    geocacheLists: [],
-                    error: null
+                    geocacheLists: []
                 };
                 if (user.geocacheLists && user.geocacheLists.length > 0) {
                     data.geocacheLists = _.chain(user.geocacheLists)
@@ -126,13 +118,10 @@ exports.startServer = function (config, callback) {
                         .sort()
                         .value();
                 }
-                return response.send(data);
+                response.send(data);
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                response.send(400, bummer.toString());
             });
     });
 
@@ -142,14 +131,14 @@ exports.startServer = function (config, callback) {
             userId = user ? user._id : null,
             name = request.params.name;
         if (!userId) {
-            return response.send(403, 'not logged in');
+            response.send(401, 'not logged in');
+            return;
         }
         repository.getUserById(userId)
             .then(function (user) {
                 var data = {
                         name: name,
-                        geocaches: [],
-                        error: null
+                        geocaches: []
                     },
                     list = null;
                 if (user.geocacheLists && user.geocacheLists.length > 0) {
@@ -159,42 +148,49 @@ exports.startServer = function (config, callback) {
                 }
                 if (list) {
                     data.geocaches = list.geocaches;
+                    response.send(data);
                 } else {
-                    data.error = 'No such list';
+                    response.send(404, 'No such list');
                 }
-                return response.send(data);
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                response.send(400, bummer.toString());
             });
     });
 
+    // update a geocache list
+    app.put('/api/geocachelist/:name', function (request, response) {
+        var user = request.cookies.user,
+            userId = user ? user._id : null;
+        if (!userId) {
+            response.send(401, 'not logged in');
+            return;
+        }
+        repository.updateList(userId, request.body)
+            .then(function () {
+                response.send(200);
+            })
+            .fail(function (bummer) {
+                response.send(400, bummer.toString());
+            });
+    });
     // delete geocache list by name
     app.delete('/api/geocachelist/:name', function (request, response) {
         var user = request.cookies.user,
             userId = user ? user._id : null,
             name = request.params.name;
         if (!userId) {
-            return response.send(403, 'not logged in');
+            response.send(401, 'not logged in');
+            return;
         }
         repository.deleteList(userId, name)
             .then(function () {
-                var data = {
-                        error: null
-                };
-                return response.send(data);
+                response.send(200);
             })
             .fail(function (bummer) {
-                var data = {
-                    error: bummer.toString()
-                };
-                return response.send(data);
+                response.send(400, bummer.toString());
             });
     });
-
 
     // okay, fire it up
     callback(server);

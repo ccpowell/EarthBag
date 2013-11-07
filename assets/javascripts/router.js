@@ -51,7 +51,8 @@ define(["backbone",
 
             logout: function() {
                 app.clearUser();
-                setPage('loginPage');
+                this.navigate("#login")
+                window.location.reload(true);
             },
 
             main: function () {
@@ -61,6 +62,7 @@ define(["backbone",
                     return;
                 }
                 setPage('mainPage');
+                mainView.refresh();
             }
         });
         return Router;

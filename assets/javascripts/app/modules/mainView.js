@@ -16,7 +16,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 'click #addGeocacheButton': 'onAddGeocache'
             },
 
-            onListChanged: function (event) {
+            onListChanged: function () {
                 var name = this.data.created;
                 if (name) {
                     this.data.created = null;
@@ -36,7 +36,12 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
             },
 
             onAddGeocache: function () {
-                this.$els.editGeocacheDialog.dialog('open');
+                var gc;
+                if (this.data.geocacheListName) {
+                    gc = geocache.getEmptyGeocache();
+                    geocache.setDialogGeocache(this.$els.editGeocacheDialog, gc);
+                    this.$els.editGeocacheDialog.dialog('open');
+                }
             },
 
             onDeleteList: function () {
@@ -51,12 +56,11 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 if (this.data.geocacheListName) {
                     url = '/api/geocachelist/' + encodeURIComponent(this.data.geocacheListName);
                     $.ajax(url, {type: 'DELETE'})
-                        .done(function() {
-                            alert('ok');
+                        .done(function () {
                             self.data.geocacheListsView.refresh();
                             self.$els.deleteListDialog.dialog('close');
                         })
-                        .fail(function(error){
+                        .fail(function (error) {
                             alert(error.toString());
                         });
                 }
@@ -64,6 +68,15 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
 
             doAddGeocache: function () {
                 // get data from form
+                var self = this,
+                    gc = geocache.getDialogGeocache(this.$els.editGeocacheDialog),
+                    url = '/api/geocachelist/' + encodeURIComponent(this.data.geocacheListName),
+                    geocaches = this.data.geocacheListView.model.get('geocaches').slice();
+                geocaches.push(gc);
+                // TODO: we need to clone (or slice) array to get change event.
+                // TODO: add version number to geocacheList.
+                this.data.geocacheListView.model.save({geocaches: geocaches});
+                self.$els.editGeocacheDialog.dialog('close');
             },
 
             doCreateList: function () {
@@ -71,6 +84,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                     name = $('#newListName', this.$els.newListDialog).val(),
                     request = { name: name };
 
+                // TODO: use model.save()
                 // post to create list for this user
                 app.postJson('/api/creategeocachelist', request)
                     .done(function (result) {
@@ -108,7 +122,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 });
                 this.$els.editGeocacheDialog = this.$('#editGeocacheDialog').dialog({
                     autoOpen: false,
-                    height: 600,
+                    height: 400,
                     width: 500,
                     modal: true,
                     buttons: {
@@ -138,6 +152,10 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 };
                 this.listenTo(this.data.geocacheListsView, 'listSelected', this.onListSelected);
                 this.listenTo(this.data.geocacheListsView, 'change', this.onListChanged);
+            },
+
+            refresh: function () {
+                this.data.geocacheListsView.refresh();
             },
 
             render: function () {

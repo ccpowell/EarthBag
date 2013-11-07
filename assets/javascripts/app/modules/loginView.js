@@ -19,12 +19,11 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             app.clearUser();
             self.$('.error').empty();
             app.postJson('/api/user/validate', data)
-                .then(function (result) {
-                    if (result.error) {
-                        self.$('.error').text(result.error);
-                    } else {
-                        app.router.navigate('#main', { trigger: true });
-                    }
+                .done(function (result) {
+                    app.router.navigate('#main', { trigger: true });
+                })
+                .fail(function (error) {
+                    self.$('.error').text(error.responseText);
                 });
         }
     });

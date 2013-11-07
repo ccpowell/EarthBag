@@ -9,7 +9,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
                 degrees: 0.0
             },
             longitude: {
-                direction: 'N',
+                direction: 'W',
                 minutes: 0.0,
                 degrees: 0.0
             },
@@ -45,6 +45,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
         return fixed;
     }
+
     function formatDirection(dir){
         return dir.direction.toUpperCase() +
             ' ' +
@@ -54,31 +55,14 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             '\'';
     }
 
-    // make a row in a table to represent a geocache in a list
-    var GeocacheView = Backbone.View.extend({
-        tagName: 'tr',
-        className: 'geocache',
-        template: templates.geocache,
-
-        render: function () {
-            //this.el is what we defined in tagName. use $el to get access to jQuery html() function
-            var stuff = this.model.toJSON();
-            // TODO: convert lat, lon, size, terrain, difficulty
-            stuff.latitude = formatDirection(stuff.latitude);
-            stuff.longitude = formatDirection((stuff.longitude));
-
-            this.$el.html(this.template(stuff));
-            return this;
-        }
-    });
-
     var GeocacheListsView = Backbone.View.extend({
         el: '#listSelect',
 
+        // when initialized, we haven't logged in, so we cannot fetch
+        // the users lists.
         initialize: function () {
             this.model = new GeocacheListList();
             this.listenTo(this.model, 'change', this.render);
-            this.model.fetch();
         },
 
         events: {
@@ -124,6 +108,10 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             this.listenTo(this.model, 'change', this.render);
         },
 
+        refresh: function () {
+            this.model.fetch({success: $.proxy(this.render, this)});
+        },
+
         setName: function (name) {
             try {
                 this.model.clear();
@@ -149,12 +137,66 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         // render a list by creating a GeocacheView and appending the
         // element it renders to the list's table body element
         renderGeocache: function (item) {
-            var geocacheView = new GeocacheView({
-                model: new Geocache(item)
-            });
-            this.$el.append(geocacheView.render().el);
+            var stuff = {
+                title: item.title,
+                size: item.size,
+                terrain: item.terrain,
+                difficulty: item.difficulty
+            },
+                template = templates.geocache;
+            // TODO: convert lat, lon, size, terrain, difficulty
+            stuff.latitude = formatDirection(item.latitude);
+            stuff.longitude = formatDirection((item.longitude));
+
+            this.$el.append(template(stuff));
         }
     });
 
-    return { GeocacheListView: GeocacheListView, GeocacheListsView: GeocacheListsView };
+    // get geocache properties from dialog
+    function getDialogGeocache($el){
+        var geocache = {
+            title: $('#geocacheTitle', $el).val(),
+            latitude: {
+                direction: $('#geocacheLatitudeDirection', $el).val(),
+                minutes: parseFloat($('#geocacheLatitudeMinutes', $el).val()),
+                degrees: parseInt($('#geocacheLatitudeDegrees', $el).val())
+            },
+            longitude: {
+                direction: $('#geocacheLongitudeDirection', $el).val(),
+                minutes: parseFloat($('#geocacheLongitudeMinutes', $el).val()),
+                degrees: parseInt($('#geocacheLongitudeDegrees', $el).val())
+            },
+            size: parseInt($('#geocacheSize', $el).val()),
+            terrain: parseInt($('#geocacheTerrain', $el).val()),
+            difficulty: parseInt($('#geocacheDifficulty', $el).val())
+        };
+        return geocache;
+    }
+
+    // stuff geocache properties into the dialog
+    function setDialogGeocache($el, geocache) {
+        $('#geocacheTitle', $el).val(geocache.title);
+        $('#geocacheLatitudeDirection', $el).val(geocache.latitude.direction);
+        $('#geocacheLatitudeDegrees', $el).val(geocache.latitude.degrees);
+        $('#geocacheLatitudeMinutes', $el).val(geocache.latitude.minutes);
+        $('#geocacheLongitudeDirection', $el).val(geocache.longitude.direction);
+        $('#geocacheLongitudeDegrees', $el).val(geocache.longitude.degrees);
+        $('#geocacheLongitudeMinutes', $el).val(geocache.longitude.minutes);
+        $('#geocacheSize', $el).val(geocache.size);
+        $('#geocacheTerrain', $el).val(geocache.terrain);
+        $('#geocacheDifficulty', $el).val(geocache.difficulty);
+    }
+
+    function getEmptyGeocache() {
+        var gc = new Geocache().toJSON();
+        return gc;
+    }
+
+    return {
+        GeocacheListView: GeocacheListView,
+        GeocacheListsView: GeocacheListsView,
+        getDialogGeocache: getDialogGeocache,
+        setDialogGeocache: setDialogGeocache,
+        getEmptyGeocache: getEmptyGeocache
+    };
 });
