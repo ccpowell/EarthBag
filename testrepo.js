@@ -1,30 +1,32 @@
 var repository = require('./modules/repository'),
-    _ = require('underscore');
-/*
+    _ = require('underscore'),
+    aaaid = '52790191e77bcb1827000001';
+
 repository.getUserByName('aaa')
     .then(function (user) {
-        repository.getUserById(user._id)
-            .then(function (byid) {
-                if (byid.name !== user.name) {
-                    console.log("???");
-                } else {
-                    console.log(JSON.stringify(byid));
-                }
-            })
-    })
-    .done();
-*/
-repository.getUserById('5276a5d68b8ad9a019000003')
-    .then(function (byid) {
-        console.log(JSON.stringify(byid));
+        if (!user) {
+            console.log('user not found');
+        }
+        else {
+            repository.getUserById(user._id)
+                .then(function (byid) {
+                    if (byid.name !== user.name) {
+                        console.log("???");
+                    } else {
+                        console.log(JSON.stringify(byid));
+                    }
+                });
+        }
     })
     .done();
 
-
- repository.createList('5276a5d68b8ad9a019000003', 'abc')
- .then(function (updated) {
- console.log(JSON.stringify(updated));
- })
- .done();
+repository.deleteList(aaaid, 'abc')
+    .then(function (updated) {
+        return repository.createList(aaaid, 'abc');
+    })
+    .then(function (updated) {
+        console.log(JSON.stringify(updated));
+    })
+    .done();
 
 

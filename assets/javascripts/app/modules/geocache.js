@@ -19,10 +19,6 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
     });
 
-    var GeocacheCollection = Backbone.Collection.extend({
-        model: Geocache
-    });
-
     var GeocacheList = Backbone.Model.extend({
         defaults: {
             name: '',
@@ -41,6 +37,23 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         }
     });
 
+
+    function padNum(num, len, fix) {
+        var fixed = num.toFixed(fix);
+        while (fixed.length < len) {
+            fixed = '0' + fixed;
+        }
+        return fixed;
+    }
+    function formatDirection(dir){
+        return dir.direction.toUpperCase() +
+            ' ' +
+            padNum(dir.degrees, 2, 0) +
+            '&deg; ' +
+            padNum(dir.minutes, 6, 3) +
+            '\'';
+    }
+
     // make a row in a table to represent a geocache in a list
     var GeocacheView = Backbone.View.extend({
         tagName: 'tr',
@@ -49,10 +62,10 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
 
         render: function () {
             //this.el is what we defined in tagName. use $el to get access to jQuery html() function
-            var stuff = this.model.toJSON(),
-                latitude = "",
-                longitude = "";
+            var stuff = this.model.toJSON();
             // TODO: convert lat, lon, size, terrain, difficulty
+            stuff.latitude = formatDirection(stuff.latitude);
+            stuff.longitude = formatDirection((stuff.longitude));
 
             this.$el.html(this.template(stuff));
             return this;
@@ -72,7 +85,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             "change": 'onListSelected'
         },
 
-        onListSelected: function() {
+        onListSelected: function () {
             var name = this.$('option:selected').val();
             this.trigger('listSelected', name);
         },
@@ -81,9 +94,10 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             this.model.fetch();
         },
 
-        selectList: function(name){
+        selectList: function (name) {
             this.$('option').prop('selected', false);
             this.$('option[value="' + name + '"]').prop('selected', true);
+            this.trigger('listSelected', name);
         },
 
         // render list by rendering each geocache list to an option
@@ -91,9 +105,9 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             var tmpl = templates.geocacheListOption,
                 self = this;
             console.log("render GeocacheListsView");
-            self.$el.html(tmpl({name: 'Open an Existing List'}));
+            self.$el.html(tmpl({name: 'Open an Existing List', value: ''}));
             $.each(this.model.attributes.geocacheLists, function (index, item) {
-                self.$el.append(tmpl(item));
+                self.$el.append(tmpl({name: item, value: item}));
             });
 
             this.trigger('change');
@@ -103,7 +117,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
 
     // make a table to show geocaches in a GeocacheList
     var GeocacheListView = Backbone.View.extend({
-        el: '#geocaches',
+        el: '#geocacheListTable tbody',
 
         initialize: function () {
             this.model = new GeocacheList();
@@ -111,7 +125,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         },
 
         setName: function (name) {
-            try{
+            try {
                 this.model.clear();
             } catch (e) {
                 console.log('clear broken ' + e);
@@ -121,20 +135,24 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         },
 
 
-        // render library by rendering each book in its collection
+        // render library by rendering each geocache
         render: function () {
-            this.collection.each(function (item) {
-                this.renderGeocache(item);
-            }, this);
+            var self = this;
+            this.$el.empty();
+            if (this.model.attributes.geocaches) {
+                $.each(this.model.attributes.geocaches, function (index, item) {
+                    self.renderGeocache(item);
+                });
+            }
         },
 
         // render a list by creating a GeocacheView and appending the
         // element it renders to the list's table body element
         renderGeocache: function (item) {
             var geocacheView = new GeocacheView({
-                model: item
+                model: new Geocache(item)
             });
-            this.$('tbody').append(geocacheView.render().el);
+            this.$el.append(geocacheView.render().el);
         }
     });
 

@@ -65,8 +65,8 @@ exports.startServer = function (config, callback) {
                 } else if (found.password !== request.body.password) {
                     data.error = "Password incorrect.";
                 } else {
-                    data.user = found;
-                    response.cookie('user', {_id: found._id, name: found.name}, {maxAge: 3600000});
+                    data.user = { name: found.name, _id: found._id };
+                    response.cookie('user', data.user, {maxAge: 3600000});
                 }
                 return response.send(data);
             })
@@ -93,7 +93,7 @@ exports.startServer = function (config, callback) {
             return response.send(403, 'not logged in');
         }
         repository.createList(userId, request.body.name)
-            .then(function() {
+            .then(function () {
                 var data = {
                     error: null
                 };
@@ -115,7 +115,7 @@ exports.startServer = function (config, callback) {
         }
         // just return names of geocacheLists
         repository.getUserById(userId)
-            .then(function(user) {
+            .then(function (user) {
                 var data = {
                     geocacheLists: [],
                     error: null
@@ -124,7 +124,6 @@ exports.startServer = function (config, callback) {
                     data.geocacheLists = _.chain(user.geocacheLists)
                         .pluck('name')
                         .sort()
-                        .map(function(item) {return {name: item};})
                         .value();
                 }
                 return response.send(data);
@@ -137,6 +136,7 @@ exports.startServer = function (config, callback) {
             });
     });
 
+    // get geocache list by name
     app.get('/api/geocachelist/:name', function (request, response) {
         var user = request.cookies.user,
             userId = user ? user._id : null,
@@ -144,23 +144,47 @@ exports.startServer = function (config, callback) {
         if (!userId) {
             return response.send(403, 'not logged in');
         }
-        // just return names of geocacheLists
         repository.getUserById(userId)
-            .then(function(user) {
+            .then(function (user) {
                 var data = {
-                    name: name,
-                    geocaches: [],
-                    error: null
-                },
+                        name: name,
+                        geocaches: [],
+                        error: null
+                    },
                     list = null;
                 if (user.geocacheLists && user.geocacheLists.length > 0) {
-                    list = _.find(user.geocacheLists, function(gcl){return gcl.name === name;});
+                    list = _.find(user.geocacheLists, function (gcl) {
+                        return gcl.name === name;
+                    });
                 }
                 if (list) {
                     data.geocaches = list.geocaches;
                 } else {
                     data.error = 'No such list';
                 }
+                return response.send(data);
+            })
+            .fail(function (bummer) {
+                var data = {
+                    error: bummer.toString()
+                };
+                return response.send(data);
+            });
+    });
+
+    // delete geocache list by name
+    app.delete('/api/geocachelist/:name', function (request, response) {
+        var user = request.cookies.user,
+            userId = user ? user._id : null,
+            name = request.params.name;
+        if (!userId) {
+            return response.send(403, 'not logged in');
+        }
+        repository.deleteList(userId, name)
+            .then(function () {
+                var data = {
+                        error: null
+                };
                 return response.send(data);
             })
             .fail(function (bummer) {

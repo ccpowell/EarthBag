@@ -3,121 +3,163 @@
 <head>
     <title>Geocaches</title>
 
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/cupertino/jquery-ui.css" type="text/css" media="all" />
-    <link rel="stylesheet" href="/stylesheets/style.css<%= cachebust %>" />
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/cupertino/jquery-ui.css"
+          type="text/css" media="all"/>
+    <link rel="stylesheet" href="/stylesheets/style.css<%= cachebust %>"/>
 
     <% if (reload) { %>
-      <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/javascripts/reload-client.js"></script>
     <% } %>
 
     <% if (optimize) { %>
-      <script src="/javascripts/main-built.js"></script>
+    <script src="/javascripts/main-built.js"></script>
     <% } else { %>
-      <script src="/javascripts/vendor/requirejs/require.js" data-main="/javascripts/main.js"></script>
+    <script src="/javascripts/vendor/requirejs/require.js" data-main="/javascripts/main.js"></script>
     <% } %>
 
 </head>
 <body>
-    <% if (optimize) { %>
-    <p>Optimized mode.  You are getting a single RequireJS optimized JavaScript file which includes all the page dependencies.</p>
-    <% } %>
-	<div id="loginPage" class="topPage">
-        <h3>Log In</h3>
-        <div class="error"></div>
-        <div>
-            <label for="loginUser">Email</label>
-            <input type="text" id="loginUser" />
-        </div>
-        <div>
-            <label for="loginPassword">Password</label>
-            <input type="password" id="loginPassword" />
-        </div>
-        <div>
-            <button id="loginButton">Log In</button>
-        </div>
-        <div>
-            <a href="#forgotpw">Forgot Password?</a>
-        </div>
-        <div>
-            No account? Please
-            <a href="#register">Register</a>
-        </div>
+<% if (optimize) { %>
+<p>Optimized mode. You are getting a single RequireJS optimized JavaScript file which includes all the page
+    dependencies.</p>
+<% } %>
+<div id="loginPage" class="topPage">
+    <h3>Log In</h3>
+
+    <div class="error"></div>
+    <div>
+        <label for="loginUser">Email</label>
+        <input type="text" id="loginUser"/>
     </div>
-    <div id="registerPage" class="topPage">
-        <h3>Register</h3>
-        <div class="error"></div>
-        <div>Enter your email and a password below.</div>
-        <div>
-            <label for="registerUser">Email</label>
-            <input type="text" id="registerUser" />
-        </div>
-        <div>
-            <label for="registerPassword">Password</label>
-            <input type="password" id="registerPassword" />
-        </div>
-        <div>
-            <button id="registerButton">Register</button>
-        </div>
+    <div>
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword"/>
     </div>
-    <div id="landingPage" class="topPage">
-        <h3>Landing</h3>
-        <div>default page</div>
+    <div>
+        <button id="loginButton">Log In</button>
     </div>
-    <div id="forgotpwPage" class="topPage">
-        <h3>I Forgot My Password</h3>
-        <div>
-            <label for="forgotpwUser">Email</label>
-            <input type="text" id="forgotpwUser" />
-        </div>
+    <div>
+        <a href="#forgotpw">Forgot Password?</a>
     </div>
-    <div id="mainPage" class="topPage">
-        <div>
-            <a href="#logout">Log Out</a>
+    <div>
+        No account? Please
+        <a href="#register">Register</a>
+    </div>
+</div>
+<div id="registerPage" class="topPage">
+    <h3>Register</h3>
+
+    <div class="error"></div>
+    <div>Enter your email and a password below.</div>
+    <div>
+        <label for="registerUser">Email</label>
+        <input type="text" id="registerUser"/>
+    </div>
+    <div>
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword"/>
+    </div>
+    <div>
+        <button id="registerButton">Register</button>
+    </div>
+</div>
+<div id="landingPage" class="topPage">
+    <h3>Landing</h3>
+
+    <div>default page</div>
+</div>
+<div id="forgotpwPage" class="topPage">
+    <h3>I Forgot My Password</h3>
+
+    <div>
+        <label for="forgotpwUser">Email</label>
+        <input type="text" id="forgotpwUser"/>
+    </div>
+</div>
+<div id="mainPage" class="topPage">
+    <div>
+        <a href="#logout">Log Out</a>
+    </div>
+    <div id="mainPageTabs">
+        <ul>
+            <li><a href="#home">Setup</a></li>
+            <li><a href="#cache">Custom Caches</a></li>
+            <li><a href="#ground">Update</a></li>
+        </ul>
+        <div id="home">
+            Home page - setup info. Probably an iframe from 4square.
         </div>
-        <div id="mainPageTabs">
-            <ul>
-                <li><a href="#home">Setup</a></li>
-                <li><a href="#cache">Custom Caches</a></li>
-                <li><a href="#ground">Update</a></li>
-            </ul>
-            <div id="home">
-                Home page - setup info. Probably an iframe from 4square.
+        <div id="cache">
+            <h3>Custom Cache Lists</h3>
+
+            <div>
+                <button id="createListButton">Create A New List</button>
+                <b>Click here</b> to start creating your new geocache list.
             </div>
-            <div id="cache">
-                <h3>Custom Cache Lists</h3>
-                <div>
-                    <button id="createListButton">Create A New List</button>
-                    <b>Click here</b> to start creating your new geocache list.
-                </div>
-                <div>
-                    <select id="listSelect">
-                    </select>
-                    or select from an <b>Existing List</b>
-                </div>
-                <div id="selectedList" style="margin: 10px; padding: 10px; border: 1px solid #00ff21; display: inline-block;">&nbsp;</div>
-                <div>
-                    <button id="deleteListButton">Delete List</button>
-                    <button id="saveListAsButton">Save List As</button>
-                </div>
-                <table id="geocacheListTable">
-                </table>
-                <button id="addGeocacheButton">Add Geocache To List</button>
+            <div>
+                <select id="listSelect">
+                </select>
+                or select from an <b>Existing List</b>
             </div>
-            <div id="ground">
-                Download a new file from Groundspeak.
+            <div id="selectedList"
+                 style="margin: 10px; padding: 10px; border: 1px solid #00ff21; display: inline-block;">&nbsp;</div>
+            <div>
+                <button id="deleteListButton">Delete List</button>
+                <button id="saveListAsButton">Save List As</button>
             </div>
+            <table id="geocacheListTable">
+                <thead class="ui-widget-header">
+                <th>Select</th>
+                <th>ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Size</th>
+                <th>Terrain</th>
+                <th>Difficulty</th>
+                </thead>
+                <tbody class="ui-widget-content"></tbody>
+            </table>
+            <button id="addGeocacheButton">Add Geocache To List</button>
         </div>
-        <div id="newListDialog">
-            Enter the name for the list. Use only letters and numbers.
-            <br />
-            <label for="newListName">Name</label>
-            <input type="text" id="newListName" />
-        </div>
-        <div id="editGeocacheDialog">
-            edit geocache
+        <div id="ground">
+            Download a new file from Groundspeak.
         </div>
     </div>
+    <div id="newListDialog" title="Geocache List" class="dialog">
+        Enter the name for the list. Use only letters and numbers.
+        <br/>
+        <label for="newListName">Name</label>
+        <input type="text" id="newListName"/>
+    </div>
+    <div id="deleteListDialog" title="Delete Geocache List" class="dialog">
+        Do you really want to delete this geocache list?
+    </div>
+    <div id="editGeocacheDialog" title="Edit Geocache" class="dialog">
+        <div>
+            <label>Cache ID:</label>
+            <input type="text" id="geocacheTitle" class="title"/>
+        </div>
+        <div>
+            <label>Latitude:</label>
+            <select id="geocacheLatitudeDirection">
+                <option value="N">N</option>
+                <option value="S">S</option>
+            </select>
+            <input type="text" id="geocacheLatitudeDegrees" class="degrees"/>&deg;
+            <input type="text" id="geocacheLatitudeMinutes" class="minutes"/>&prime;
+        </div>
+        <div>
+            <label>Longitude:</label>
+            <select id="geocacheLongitudeDirection">
+                <option value="W">W</option>
+                <option value="E">E</option>
+            </select>
+            <input type="text" id="geocacheLongitudeDegrees" class="degrees"/>&deg;
+            <input type="text" id="geocacheLongitudeMinutes" class="minutes"/>&prime;
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

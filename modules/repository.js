@@ -11,7 +11,7 @@ var mongo = require('mongodb'),
     port = mongo.Connection.DEFAULT_PORT;
 
 function newClient() {
-    return mongoclient = new mongo.MongoClient(new mongo.Server(host, port, {native_parser: true}));
+    return new mongo.MongoClient(new mongo.Server(host, port, {native_parser: true}));
 }
 
 // perform an action with the collection of users
@@ -59,14 +59,10 @@ exports.getUserByName = function (name) {
 exports.createUser = function (user) {
     console.log(user['name']);
     if (!user['name']) {
-        return Q.fcall(function () {
-            throw 'Email is required';
-        });
+        return makeError('Email is required');
     }
     if (!user['password']) {
-        return Q.fcall(function () {
-            throw 'Password is required';
-        });
+        return makeError('Password is required');
     }
     var action = function (collection) {
         return Q.ninvoke(collection, 'findOne', { name: user.name })
@@ -80,13 +76,16 @@ exports.createUser = function (user) {
     return withUsers(action);
 };
 
+function makeError(message) {
+    return Q.fcall(function () {
+        throw message;
+    })
+}
 
 // add a list to a user
 exports.createList = function (userId, name) {
     if (!name) {
-        return Q.fcall(function () {
-            throw 'Name is required.';
-        });
+        return makeError('Name is required.');
     }
     var action = function (collection) {
         return Q.ninvoke(collection, 'findOne', { _id: mongo.ObjectID(userId) })
@@ -107,6 +106,53 @@ exports.createList = function (userId, name) {
                     geocaches: []
                 });
                 // TODO: more specific update?
+                return Q.ninvoke(collection, 'save', user);
+            })
+    };
+    return withUsers(action);
+};
+
+// update a list
+exports.updateList = function (userId, gcl) {
+    var action = function (collection) {
+        return Q.ninvoke(collection, 'findOne', { _id: mongo.ObjectID(userId) })
+            .then(function (user) {
+                if (!user) {
+                    throw "User not found.";
+                }
+                if (!user.geocacheLists) {
+                    throw "User does not have any geocache lists.";
+                }
+                var found = _.some(user.geocacheLists, function (gc) {
+                    if (gc.name === gcl.name) {
+                        gc.geocaches = gcl.geocaches;
+                        return true;
+                    }
+                    return false;
+                });
+                if (!found) {
+                    throw "List not found.";
+                }
+                return Q.ninvoke(collection, 'save', user);
+            })
+    };
+    return withUsers(action);
+};
+
+
+// delete a list
+exports.deleteList = function (userId, name) {
+    var action = function (collection) {
+        return Q.ninvoke(collection, 'findOne', { _id: mongo.ObjectID(userId) })
+            .then(function (user) {
+                if (!user) {
+                    throw "User not found.";
+                }
+                if (user.geocacheLists) {
+                    user.geocacheLists = _.reject(user.geocacheLists, function (gc) {
+                        return (gc.name === name);
+                    });
+                }
                 return Q.ninvoke(collection, 'save', user);
             })
     };
