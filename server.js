@@ -49,12 +49,10 @@ exports.startServer = function (config, callback) {
             password: request.body.password
         };
         repository.createUser(user)
-            .then(function (created) {
-                var data = {
-                    user: created
-                };
-                response.cookie('user', {_id: created._id, name: created.name}, {maxAge: 3600000});
-                response.send(200, data);
+            .then(function () {
+                var u = { name: user.name, _id: user._id };
+                response.cookie('user', u, {maxAge: 3600000});
+                response.send(200, u);
             })
             .fail(function (bummer) {
                 response.send(400, bummer.toString());
@@ -64,40 +62,34 @@ exports.startServer = function (config, callback) {
     app.post('/user/validate', function (request, response) {
         repository.getUserByName(request.body.name)
             .then(function (found) {
-                var data = {
-                    user: null
-                };
                 if (!found) {
-                    return response.send(400, "User name not found. Please register to create an account.");
+                    response.send(400, "User name not found. Please register to create an account.");
                 } else if (found.password !== request.body.password) {
-                    return response.send(400, "Password incorrect.");
+                    response.send(400, "Password incorrect.");
                 } else {
-                    data.user = { name: found.name, _id: found._id };
-                    response.cookie('user', data.user, {maxAge: 3600000});
-                    return response.send(200, data);
-            }
+                    var u = { name: found.name, _id: found._id };
+                    response.cookie('user', u, {maxAge: 3600000});
+                    response.send(200, u);
+                }
             })
             .fail(function (bummer) {
-                return response.send(500, bummer.toString());
+                response.send(500, bummer.toString());
             });
     });
 
     app.post('/user/forgotpw', function (request, response) {
-        return response.send(501);
+        response.send(501);
     });
 
     // API calls must be made by a logged in user
     app.post('/api/changepw', function (request, response) {
-        return response.send(501);
+        response.send(501);
     });
 
     app.post('/api/creategeocachelist', function (request, response) {
         repository.createList(request.user._id, request.body.name)
             .then(function () {
-                var data = {
-                    error: null
-                };
-                response.send(200, data);
+                response.send(200, {});
             })
             .fail(function (bummer) {
                 response.send(400, bummer.toString());
@@ -106,18 +98,12 @@ exports.startServer = function (config, callback) {
 
     app.get('/api/usergeocachelists', function (request, response) {
         // just return names of geocacheLists
-        repository.getUserById(request.user._id)
-            .then(function (user) {
+        repository.getUserGeocacheLists(request.user._id)
+            .then(function (lists) {
                 var data = {
-                    geocacheLists: []
+                    geocacheLists: lists
                 };
-                if (user.geocacheLists && user.geocacheLists.length > 0) {
-                    data.geocacheLists = _.chain(user.geocacheLists)
-                        .pluck('name')
-                        .sort()
-                        .value();
-                }
-                response.send(data);
+                response.send(200, data);
             })
             .fail(function (bummer) {
                 response.send(400, bummer.toString());
@@ -127,24 +113,9 @@ exports.startServer = function (config, callback) {
     // get geocache list by name
     app.get('/api/geocachelist/:name', function (request, response) {
         var name = request.params.name;
-        repository.getUserById(request.user._id)
-            .then(function (user) {
-                var data = {
-                        name: name,
-                        geocaches: []
-                    },
-                    list = null;
-                if (user.geocacheLists && user.geocacheLists.length > 0) {
-                    list = _.find(user.geocacheLists, function (gcl) {
-                        return gcl.name === name;
-                    });
-                }
-                if (list) {
-                    data.geocaches = list.geocaches;
-                    response.send(data);
-                } else {
-                    response.send(404, 'No such list');
-                }
+        repository.getUserGeocacheList(request.user._id, name)
+            .then(function (list) {
+                response.send(200, list);
             })
             .fail(function (bummer) {
                 response.send(400, bummer.toString());
@@ -164,6 +135,7 @@ exports.startServer = function (config, callback) {
 
     // delete geocache list by name
     app.delete('/api/geocachelist/:name', function (request, response) {
+        var name = request.params.name;
         repository.deleteList(request.user._id, name)
             .then(function () {
                 response.send(200);

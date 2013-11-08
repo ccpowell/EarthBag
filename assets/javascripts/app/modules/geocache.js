@@ -115,7 +115,7 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         onCommandClicked: function (event, x, y) {
             // get row index
             var el = $(event.currentTarget),
-                command=el.data('command'),
+                command = el.data('command'),
                 index = el.closest('tr').data('index');
             // get corresponding geocache?
             // raise event
@@ -123,7 +123,11 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
         },
 
         refresh: function () {
-            this.model.fetch({success: $.proxy(this.render, this)});
+            if (this.model.get('name')) {
+                this.model.fetch({success: $.proxy(this.render, this)});
+            } else {
+                this.render();
+            }
         },
 
         setName: function (name) {
@@ -132,8 +136,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             } catch (e) {
                 console.log('clear broken ' + e);
             }
-            this.model.set({name: name}, {silent: true});
-            this.model.fetch();
+            this.model.set({name: name || ''}, {silent: true});
+            this.refresh();
         },
 
 

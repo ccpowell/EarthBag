@@ -160,3 +160,45 @@ exports.deleteList = function (userId, name) {
 };
 
 
+
+exports.getUserGeocacheLists = function (userId) {
+    var action = function (collection) {
+        return Q.ninvoke(collection, 'findOne', { _id: mongo.ObjectID(userId) })
+            .then(function (user) {
+                var lists;
+                if (user.geocacheLists && user.geocacheLists.length > 0) {
+                    lists = _.chain(user.geocacheLists)
+                        .pluck('name')
+                        .sort()
+                        .value();
+                }
+                return Q(lists);
+            });
+    };
+    return withUsers(action);
+};
+
+
+exports.getUserGeocacheList = function (userId, name) {
+    var action = function (collection) {
+        return Q.ninvoke(collection, 'findOne', { _id: mongo.ObjectID(userId) })
+            .then(function (user) {
+                var data = {
+                        name: name,
+                        geocaches: []
+                    },
+                    list = null;
+                if (user.geocacheLists && user.geocacheLists.length > 0) {
+                    list = _.find(user.geocacheLists, function (gcl) {
+                        return gcl.name === name;
+                    });
+                }
+                if (list) {
+                    data.geocaches = list.geocaches;
+                    return Q(data);
+                }
+                throw "no such list";
+            });
+    };
+    return withUsers(action);
+};

@@ -21,6 +21,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app/modules/geocache', 
                 if (name) {
                     this.data.created = null;
                     this.data.geocacheListsView.selectList(name);
+                } else {
+                    this.onListSelected('');
                 }
             },
 

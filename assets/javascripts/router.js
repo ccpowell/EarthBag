@@ -30,7 +30,7 @@ define(["backbone",
                 'forgotpw': 'forgotpw',
                 'main': 'main',
                 'logout': 'logout',
-                '*splat': 'landing'
+                '*splat': 'main'
             },
 
             login: function () {
