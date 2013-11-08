@@ -18,14 +18,12 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
                 password: this.$('#registerPassword').val()
             }, self = this;
             self.$('.error').empty();
-            app.postJson('/api/user/register', data)
-                .then(function (result) {
-                    app.setUser(result.user);
-                    if (result.error) {
-                        self.$('.error').text(result.error);
-                    } else {
-                        app.router.navigate('#main', { trigger: true });
-                    }
+            app.postJson('/user/register', data)
+                .done(function () {
+                    app.router.navigate('#main', { trigger: true });
+                })
+                .fail(function (error) {
+                    self.$('.error').text(error.responseText);
                 });
         },
 

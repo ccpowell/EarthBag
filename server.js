@@ -4,6 +4,17 @@ var express = require('express'),
     repository = require('./modules/repository'),
     _ = require('underscore');
 
+function checkUser(request, response, next) {
+    var user = request.cookies.user,
+        userId = user ? user._id : null;
+    if (!userId) {
+        response.send(401, 'not logged in');
+    } else {
+        request.user = user;
+        next();
+    }
+}
+
 exports.startServer = function (config, callback) {
     var port = process.env.PORT || config.server.port;
     var app = express();
@@ -21,6 +32,7 @@ exports.startServer = function (config, callback) {
         app.use(express.cookieParser());
         app.use(express.methodOverride());
         app.use(express.compress());
+        app.use('/api', checkUser);
         app.use(config.server.base, app.router);
         app.use(express.static(config.watch.compiledDir));
     });
@@ -31,7 +43,7 @@ exports.startServer = function (config, callback) {
 
     app.get('/', routes.index(config));
 
-    app.post('/api/user/register', function (request, response) {
+    app.post('/user/register', function (request, response) {
         var user = {
             name: request.body.name,
             password: request.body.password
@@ -42,14 +54,14 @@ exports.startServer = function (config, callback) {
                     user: created
                 };
                 response.cookie('user', {_id: created._id, name: created.name}, {maxAge: 3600000});
-                response.send(data);
+                response.send(200, data);
             })
             .fail(function (bummer) {
                 response.send(400, bummer.toString());
             });
     });
 
-    app.post('/api/user/validate', function (request, response) {
+    app.post('/user/validate', function (request, response) {
         repository.getUserByName(request.body.name)
             .then(function (found) {
                 var data = {
@@ -70,22 +82,17 @@ exports.startServer = function (config, callback) {
             });
     });
 
-    app.post('/api/user/changepw', function (request, response) {
+    app.post('/user/forgotpw', function (request, response) {
         return response.send(501);
     });
 
-    app.post('/api/user/forgotpw', function (request, response) {
+    // API calls must be made by a logged in user
+    app.post('/api/changepw', function (request, response) {
         return response.send(501);
     });
 
     app.post('/api/creategeocachelist', function (request, response) {
-        var user = request.cookies.user,
-            userId = user ? user._id : null;
-        if (!userId) {
-            response.send(401, 'not logged in');
-            return;
-        }
-        repository.createList(userId, request.body.name)
+        repository.createList(request.user._id, request.body.name)
             .then(function () {
                 var data = {
                     error: null
@@ -97,17 +104,9 @@ exports.startServer = function (config, callback) {
             });
     });
 
-
-
     app.get('/api/usergeocachelists', function (request, response) {
-        var user = request.cookies.user,
-            userId = user ? user._id : null;
-        if (!userId) {
-            response.send(401, 'not logged in');
-            return;
-        }
         // just return names of geocacheLists
-        repository.getUserById(userId)
+        repository.getUserById(request.user._id)
             .then(function (user) {
                 var data = {
                     geocacheLists: []
@@ -127,14 +126,8 @@ exports.startServer = function (config, callback) {
 
     // get geocache list by name
     app.get('/api/geocachelist/:name', function (request, response) {
-        var user = request.cookies.user,
-            userId = user ? user._id : null,
-            name = request.params.name;
-        if (!userId) {
-            response.send(401, 'not logged in');
-            return;
-        }
-        repository.getUserById(userId)
+        var name = request.params.name;
+        repository.getUserById(request.user._id)
             .then(function (user) {
                 var data = {
                         name: name,
@@ -160,13 +153,7 @@ exports.startServer = function (config, callback) {
 
     // update a geocache list
     app.put('/api/geocachelist/:name', function (request, response) {
-        var user = request.cookies.user,
-            userId = user ? user._id : null;
-        if (!userId) {
-            response.send(401, 'not logged in');
-            return;
-        }
-        repository.updateList(userId, request.body)
+        repository.updateList(request.user._id, request.body)
             .then(function () {
                 response.send(200);
             })
@@ -174,16 +161,10 @@ exports.startServer = function (config, callback) {
                 response.send(400, bummer.toString());
             });
     });
+
     // delete geocache list by name
     app.delete('/api/geocachelist/:name', function (request, response) {
-        var user = request.cookies.user,
-            userId = user ? user._id : null,
-            name = request.params.name;
-        if (!userId) {
-            response.send(401, 'not logged in');
-            return;
-        }
-        repository.deleteList(userId, name)
+        repository.deleteList(request.user._id, name)
             .then(function () {
                 response.send(200);
             })

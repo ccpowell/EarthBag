@@ -18,8 +18,8 @@ define(['backbone', 'templates', 'jquery', 'jquery-ui', 'app'], function (Backbo
             }, self = this;
             app.clearUser();
             self.$('.error').empty();
-            app.postJson('/api/user/validate', data)
-                .done(function (result) {
+            app.postJson('/user/validate', data)
+                .done(function () {
                     app.router.navigate('#main', { trigger: true });
                 })
                 .fail(function (error) {
